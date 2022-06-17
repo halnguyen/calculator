@@ -1,38 +1,115 @@
-.App {
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400&display=swap');
+
+:root {
+	--accent-light: hsl( 217 2% 48% );
+	--accent-dark: hsl( 217 8% 25% );
+	--background: hsl( 0 0% 16% );
+	--foreground: hsl( 0 0% 100% );
+	--warn: hsl( 0 100% 70% );
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Barlow", monospace;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+#root {
+	height: 100vh;
+	width: 100vw;
+	overflow: none;
+	display: grid;
+	place-items: center;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+
+.calculator {
+	background-color: var(--background);
+	border: 2px solid var(--background);
+	border-radius: 5px;
+	box-shadow: 0 0 3px var(--background);
+	height: 450px;
+	width: 400px;
+	display: grid;
+	gap: 2px 2px;
+	grid-template: 25% 75% / 3fr 1fr;
+	grid-template-areas:
+		"viewport viewport"
+		"numbers operators";
+	overflow: hidden;
 }
 
-.App-link {
-  color: #61dafb;
+.viewport,
+.operators,
+.numbers {
+	height: 100%;
+	width: 100%;
+	display: grid;
+	place-items: center;
+	color: var(--foreground);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.viewport {
+	grid-area: viewport;
+	grid-template-rows: 3fr 1fr;
+	justify-items: end;
+	background-color: var(--accent-light);
+	padding: 0.5em;
+}
+
+.calculation {
+	font-size: 2em;
+	color: var(--foreground);
+}
+
+.result {
+	font-size: 1.4em;
+	color: hsl( 0 00% 70% );
+}
+
+.numbers {
+	grid-area: numbers;
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.operators {
+	grid-area: operators;
+	grid-template-rows: repeat(5, 1fr);
+}
+
+.operators button {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	padding-bottom: 8px;
+}
+
+.operators button:last-child {
+	background-color: var(--accent-light);
+	align-items: center;
+	padding-bottom: 0;
+	z-index: 2;
+	transition: all 150ms ease-in;
+}
+
+.operators button:last-child:hover {
+	background-color: var(--warn);
+	color: var(--background);
+}
+
+button {
+	height: 100%;
+	width: 100%;
+	font-size: 2em;
+	color: var(--foreground);
+	background-color: var(--accent-dark);
+	cursor: pointer;
+	border: none;
+	box-shadow: 0 0 0px transparent;
+	transition: 150ms;
+}
+
+button:hover {
+	background-color: var(--accent-light);
 }
