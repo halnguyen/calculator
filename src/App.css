@@ -85,7 +85,11 @@
 	padding-bottom: 8px;
 }
 
-.operators button:last-child {
+.operators button:hover {
+	background-color: hsl( 217 70% 61% );
+}
+
+.operators button:first-child {
 	background-color: var(--accent-light);
 	align-items: center;
 	padding-bottom: 0;
@@ -93,7 +97,7 @@
 	transition: all 150ms ease-in;
 }
 
-.operators button:last-child:hover {
+.operators button:first-child:hover {
 	background-color: var(--warn);
 	color: var(--background);
 }
