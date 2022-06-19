@@ -9,10 +9,10 @@
 }
 
 * {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  font-family: "Barlow", monospace;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	font-family: "Barlow", monospace;
 }
 
 #root {
@@ -32,17 +32,13 @@
 	height: 450px;
 	width: 400px;
 	display: grid;
+	grid-template-rows: 25% 75%;
 	gap: 2px 2px;
-	grid-template: 25% 75% / 3fr 1fr;
-	grid-template-areas:
-		"viewport viewport"
-		"numbers operators";
 	overflow: hidden;
 }
 
 .viewport,
-.operators,
-.numbers {
+.buttons {
 	height: 100%;
 	width: 100%;
 	display: grid;
@@ -51,7 +47,7 @@
 }
 
 .viewport {
-	grid-area: viewport;
+	grid-row: 1 / 2;
 	grid-template-rows: 3fr 1fr;
 	justify-items: end;
 	background-color: var(--accent-light);
@@ -68,13 +64,26 @@
 	color: hsl( 0 00% 70% );
 }
 
+.buttons {
+	grid-row: 2 / 3;
+	display: grid;
+	grid-gap: 0 2px;
+	grid-template-columns: 75% 25%;
+}
+
+.buttons > * {
+	display: grid;
+	height: 100%;
+	width: 100%;
+}
+
 .numbers {
-	grid-area: numbers;
+	grid-column: 1 / 2;
 	grid-template-columns: repeat(3, 1fr);
 }
 
 .operators {
-	grid-area: operators;
+	grid-column: 2 / 3;
 	grid-template-rows: repeat(5, 1fr);
 }
 

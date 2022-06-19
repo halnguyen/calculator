@@ -7,108 +7,167 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      calculation: "0",
-      result: "0"
+      expression: "0",
+      result: "0",
+      numLocked: false, // false: not locking num buttons, true: locking num buttons
+      decimal: true // true: can append decimal, false: cannot append decimal
     };
     this.handleClick = this.handleClick.bind(this);
     this.handleClear = this.handleClear.bind(this);
     this.evaluate = this.evaluate.bind(this);
   }
 
-  handleClick(e) {
-    const input = e.target.innerHTML;
-    const operators = ["+", "-", "*", "/"];
+  handleClick(input) {
+    /*
+    1. Whenever the "." button is clicked, this.state.decimal is set to false, only
+    appending an operator would set this state back to true. If false, clicking the "."
+    will not append it to the expression
+    2. If the last input was an operator, clicking another operator will not append it
+    to the expression to be evaluated
+    3. After clicking the "=" button to get the evaluated value, numLocked is set to
+    false, which prevent user from hitting another button, to prevent loosing the original
+    result for further calculation
+    4. Only allowing one leading zero to be displayed
+    */
 
-    let currentState = this.state;
+    // An array holding all operators
+    // Is used to check against input
+    const ops = ["+", "-", "/", "*"];
+    let calculation = this.state.expression;
+    let tempResult;
 
-    // Handle the rendering of results
-
-    if (currentState.calculation === "0") {
-      // if the first input is 0 and the second input is an operator
-      // render " 0 {operator} "
-      if (operators.includes(input)) {
-        currentState.calculation += ` ${input} `;
-        // put in a function
-        try {
-          currentState.result = eval(currentState.calculation);
-        } catch (error) {
-          currentState.result = this.state.result;
-        }
-      } else {
-        currentState.calculation = input;
-        // put in a function
-        try {
-          currentState.result = eval(currentState.calculation);
-        } catch (error) {
-          currentState.result = this.state.result;
-        }
-      }
-
-      this.setState(currentState);
+    // State `numLocked` is set to true once the evaluation is successfuly executed
+    // This prevents user from appending another number and to preserve the
+    // value of the evaluated expression for the next calculation
+    if ( this.state.numLocked === true && !ops.includes(input) ) {
       return;
     }
 
-    // If last input was an operators then add only numbers
-    if (!operators.includes(currentState.calculation.slice(-1), input)) {
-      if (operators.includes(input)) {
-        currentState.calculation += ` ${input} `;
-      } else {
-        currentState.calculation += input;
+    // Preventing two periods in input
+    if ( this.state.decimal === false && input === "." ) return;
+    if ( this.state.decimal === true && input === "." ) {
+      this.setState(
+        {
+          decimal: false
+        }
+      );
+    }
+
+
+    const getResult = () => {
+      // This function will check for to see if the current calculation can be rendered
+      // If yes then renders in the result field,
+      // else do nothing
+      try {
+        const renderedResult = eval(calculation);
+        return renderedResult;
+      } catch(error) {
+        return this.state.result;
       }
-    } else if (!operators.includes(input)) {
-      currentState.calculation += input;
+    }
+    // Only 1 zero is allowed at the beginning
+    // If the first input is an operator, render the ops once
+    if (calculation === "0") {
+      if ( ops.includes(input) ) {
+        calculation += input;
+        tempResult = getResult();
+        this.setState(
+          {
+            decimal: true
+          }
+        );
+      } else {
+        calculation = input;
+        tempResult = getResult();
+      }
+      this.setState(
+        {
+          expression: calculation,
+          result: tempResult,
+          numLocked: false
+        }
+      );
+      return
     }
 
-    // Handling the result field
-    // Try evaluating the expression, render if successful
-    // If not render current eval state
-    try {
-      currentState.result = eval(currentState.calculation);
-    } catch (error) {
-      currentState.result = this.state.result;
+    // If last input was an operators then add only numbers
+    if ( !ops.includes( calculation.slice(-1)), input ) {
+      // Adding a space between operators and numbers if input is an operators
+      if ( ops.includes(input) ) {
+        calculation += ` ${input} `;
+        this.setState(
+          {
+            decimal: true
+          }
+        );
+      } else {
+        calculation += input;
+      }
+    } else if ( !ops.includes(input) ){
+      calculation += input
     }
+    tempResult = getResult();
+    this.setState(
+      {
+        expression: calculation,
+        result: tempResult,
+        numLocked: false
+      }
+    );
 
-    this.setState(currentState);
   }
 
   handleClear() {
     // Clear calculation and result
-    this.setState({
-      calculation: "0",
-      result: "0"
-    });
+    this.setState(
+      {
+        expression: "0",
+        result: "0",
+        numLocked: false,
+        decimal: true
+      }
+    );
   }
 
   evaluate() {
     // Evaluate expression in this.state.calculation
-    const expression = this.state.calculation;
+    const calculation = this.state.expression;
     let expressionEvaluated;
+
+    // Calculation and rendering
     try {
-      expressionEvaluated = eval(expression);
+      expressionEvaluated = eval(calculation);
     } catch (e) {
       expressionEvaluated = "Error";
       this.setState({
-        calculation: "0",
-        result: "0"
+        expression: "0",
+        result: "0",
+        numLocked: false,
+        decimal: true
       });
     }
+
 
     // Handling errors
     if (expressionEvaluated !== "Error") {
       this.setState({
-        calculation: expressionEvaluated.toString(),
-        result: ""
+        expression: expressionEvaluated.toString(),
+        result: "",
+        numLocked: true,
+        decimal: true
       });
-    } else {
+    }  else {
       // Display error, then return to the default state
       this.setState({
-        calculation: expressionEvaluated,
+        expression: expressionEvaluated,
         result: ""
       });
       setTimeout(() => {
         this.setState({
-          calculation: "0",
-          result: "0"
+          expression: "0",
+          result: "0",
+          numLocked: false,
+          decimal: true
         });
       }, 750);
     }
@@ -117,10 +176,15 @@ class App extends React.Component {
 
   render() {
     return (
-        <div className="calculator">
-          <Viewport />
-          <Buttons />
-        </div>
+      <div className="calculator">
+        <Viewport
+          result={this.state.result}
+          calculation={this.state.expression} />
+        <Buttons
+          onClick={this.handleClick}
+          eval={this.evaluate}
+          clear={this.handleClear} />
+      </div>
     );
   }
 }
